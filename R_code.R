@@ -2,8 +2,8 @@ library(tidyverse)
 library(onehot)
 library(neuralnet)
 rm(list = ls())
-u <- read.csv('~/Desktop/mike_nn/assignment2/upsid.R_ready.txt', sep = "\t", quote = '', encoding = 'Latin-1')
-w <- read.csv('~/Desktop/mike_nn/assignment2/wals.R_ready.txt', sep = "\t", quote = '')
+u <- read.csv('~/Desktop/mike_nn/assignment2/LangTypo/upsid.R_ready.txt', sep = "\t", quote = '', encoding = 'Latin-1')
+w <- read.csv('~/Desktop/mike_nn/assignment2/LangTypo/wals.R_ready.txt', sep = "\t", quote = '')
 
 u_nonames <- u[,2:ncol(u)]
 

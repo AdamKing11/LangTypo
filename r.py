@@ -17,6 +17,17 @@ def read_upsid(f = 'UPSID_MATRIX.txt'):
 			upsid[language] = phonemes
 	return upsid, phoneme_indices
 
+def read_upsid_desc(f = 'upsid_descs.txt'):
+	descs = {}
+	with open(f) as rf:
+		reader = csv.reader(rf, delimiter = '\t', quotechar = None)
+		# columns names
+		next(reader)
+		for i, (p, d) in enumerate(reader):
+			descs[p] = d
+	#		if i > 100:	break
+	return descs
+
 def read_wals(f = 'language.csv'):
 	wals = {}
 	feature_indices = {}
@@ -38,6 +49,7 @@ def read_wals(f = 'language.csv'):
 			wals[language] = f_dict
 
 	return wals, feature_indices
+
 
 
 class Lang(object):
@@ -80,6 +92,7 @@ def sparse_dict_to_list(d, sparse_size, binary = False):
 def main():
 	upsid, phoneme_indices = read_upsid()
 	wals, feature_indices = read_wals()
+	phones_and_descs = read_upsid_desc()
 
 	d = aggregate_upsid_wals(upsid, wals)
 
@@ -88,6 +101,7 @@ def main():
 	with open('upsid.R_ready.txt', 'w') as wf:
 		
 		phones_as_list = sparse_dict_to_list(phoneme_indices, total_phonemes)
+		phones_as_list = [phones_and_descs[p] for p in phones_as_list]
 		wf.write('\t'.join(['name'] + phones_as_list))
 		wf.write('\n')
 
