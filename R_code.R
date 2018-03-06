@@ -4,25 +4,31 @@ library(neuralnet)
 rm(list = ls())
 u <- read.csv('~/Desktop/mike_nn/assignment2/LangTypo/upsid.R_ready.txt', sep = "\t", quote = '', encoding = 'Latin-1')
 w <- read.csv('~/Desktop/mike_nn/assignment2/LangTypo/wals.R_ready.txt', sep = "\t", quote = '')
+wals_index <- ncol(u) + 1
+joined <- left_join(u, w, by = 'name')
 
-u_nonames <- u[,2:ncol(u)]
+subset_by_featurename <- function(d, r, l = 0) {
+  if (l == 0) { 
+    l <- ncol(d)
+    }
+  subset(d, select = grep(r, names(d[, 1:l])))
+}
 
-l <- w[c('name', 'macroarea')]
+make_onehot_df <- function(d, feature_name) {
+  encoder <- onehot(d[feature_name])
+  data.frame(predict(encoder, d[feature_name]))
+}
 
-encoder <- onehot(l['macroarea'])
-p <- predict(encoder, l)
 
-n_labels <- ncol(p)
-d <- data.frame(p, u_nonames)
+X <- subset_by_featurename(joined, 'vowel', wals_index)
+y <- make_onehot_df(joined, 'macroarea')
 
-output_feats <- paste(colnames(d[, 1:n_labels]), collapse = ' + ')
-input_feats <- paste(colnames(d[, (n_labels+1):ncol(d)]), collapse = ' + ')
-f <- as.formula(paste(c(output_feats, input_feats), collapse = ' ~ '))
+d <- data.frame(X, y)
+
+input_feats <- paste(colnames(X), collapse = ' + ')
+output_feats <- paste(colnames(y), collapse = ' + ')
+nn_formula <- as.formula(paste(c(output_feats, input_feats), collapse = ' ~ '))
 
 attach(d)
-nnt <- neuralnet(f, data = d[1:370], hidden = c(10), linear.output = FALSE)
-res <- compute(nnt, d[371:380,1:n_labels])
-d$'1' <- 1
-d$"iH"
-
-d[c('uh')]
+nnt <- neuralnet(nn_formula, data = d, hidden = c(25), linear.output = FALSE)
+res <- compute(nnt, d)
